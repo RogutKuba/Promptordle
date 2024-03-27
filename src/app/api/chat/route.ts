@@ -3,6 +3,10 @@ import { OpenAIStream, StreamingTextResponse } from 'ai';
 import dayjs from 'dayjs';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { GuessResponse } from '@/lib/guess.types';
+import { db } from '@/lib/db';
+
+const STARTING_DAY = dayjs('2024-01-01');
+const TOTAL_WORD_COUNT = 1770;
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('Missing OPENAI_API_KEY');
@@ -17,19 +21,12 @@ const openai = new OpenAI({
 export const runtime = 'edge';
 
 const PROMPTDLE_FALLBACK_WORD = 'shade';
-const PROMPTDLE_DAILY_WORDS: { [key: string]: string } = {
-  '2024-03-13': 'great',
-  '2024-03-14': 'china',
-  '2024-03-15': 'plane',
-};
 
 export async function POST(req: Request) {
   try {
     const { messages } = (await req.json()) as {
       messages: ChatCompletionMessageParam[];
     };
-
-    const todayDate = dayjs().format('YYYY-MM-DD');
 
     const { userGuess, userGuessMessage } = (() => {
       const userMessages = messages.filter((m: any) => m.role === 'user');
@@ -58,11 +55,26 @@ export async function POST(req: Request) {
       };
     })();
 
-    const dailyWord = (() => {
-      if (!PROMPTDLE_DAILY_WORDS[todayDate]) {
+    const dailyWord = await (async () => {
+      try {
+        const currentDayIndex =
+          STARTING_DAY.diff(dayjs(), 'days') % TOTAL_WORD_COUNT;
+
+        console.log('currentDayIndex', currentDayIndex);
+
+        const sqlResult = await db.execute(
+          `SELECT * FROM words WHERE id = ${currentDayIndex}`
+        );
+        const row = sqlResult.rows[0] as {
+          id: number;
+          word: string;
+          length: number;
+        };
+
+        return row.word.toLowerCase();
+      } catch {
         return PROMPTDLE_FALLBACK_WORD;
       }
-      return PROMPTDLE_DAILY_WORDS[todayDate].toLowerCase();
     })();
 
     if (userGuess === dailyWord) {

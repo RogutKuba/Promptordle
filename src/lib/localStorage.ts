@@ -34,8 +34,6 @@ export function useLocalStorage<T>(
   // This will update the state with the value from the local storage after
   // the first initial value is applied.
   useEffect(() => {
-    console.log('Reading from local storage', key, fetchFromLocal());
-
     // Set the value from localStorage
     refetchFromLocal();
     // First load is done

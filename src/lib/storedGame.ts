@@ -28,8 +28,6 @@ export const useStoredGame = () => {
   }, []);
 
   const storeGameState = (messages: Message[], hasWon: boolean) => {
-    console.log('storing game state');
-
     localStorage.setItem(
       GAME_KEY,
       JSON.stringify({

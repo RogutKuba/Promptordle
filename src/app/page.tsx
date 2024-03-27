@@ -1,5 +1,11 @@
 import { Hero } from '@/components/Hero';
 import { Chat } from '@/components/Chat';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Promptordle',
+  description: 'A word guessing game with a twist.',
+};
 
 export default function Home() {
   return (

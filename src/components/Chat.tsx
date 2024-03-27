@@ -14,7 +14,6 @@ import dayjs from 'dayjs';
 
 export const Chat = () => {
   const { storedGame, storeGameState } = useStoredGame();
-  // console.log('storedGame', storedGame);
   const [guessRes, setGuessRes] = useState<GuessResponse | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const { stats, addPlayed } = useStats();
