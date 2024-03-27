@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { OpenAIStream, StreamingTextResponse } from 'ai';
 import dayjs from 'dayjs';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
+import { GuessResponse } from '@/lib/guess.types';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('Missing OPENAI_API_KEY');
@@ -15,6 +16,7 @@ const openai = new OpenAI({
 // Set the runtime to edge for best performance
 export const runtime = 'edge';
 
+const PROMPTDLE_FALLBACK_WORD = 'shade';
 const PROMPTDLE_DAILY_WORDS: { [key: string]: string } = {
   '2024-03-13': 'great',
   '2024-03-14': 'china',
@@ -29,9 +31,7 @@ export async function POST(req: Request) {
 
     const todayDate = dayjs().format('YYYY-MM-DD');
 
-    console.log('Today is', todayDate);
-
-    const userGuess = (() => {
+    const { userGuess, userGuessMessage } = (() => {
       const userMessages = messages.filter((m: any) => m.role === 'user');
       if (userMessages.length === 0) {
         throw new Error('No user messages found');
@@ -50,24 +50,45 @@ export async function POST(req: Request) {
         );
       }
 
-      return `My guess for round ${userMessages.length + 1} is "${rawWord}"`;
+      return {
+        userGuess: rawWord.toLowerCase(),
+        userGuessMessage: `My guess for round ${
+          userMessages.length + 1
+        } is "${rawWord}"`,
+      };
     })();
 
     const dailyWord = (() => {
-      console.log('PROMPTDLE_DAILY_WORDS', PROMPTDLE_DAILY_WORDS[todayDate]);
-
       if (!PROMPTDLE_DAILY_WORDS[todayDate]) {
-        return 'tests';
-        // throw new Error('No daily word found');
+        return PROMPTDLE_FALLBACK_WORD;
       }
-      return PROMPTDLE_DAILY_WORDS[todayDate];
+      return PROMPTDLE_DAILY_WORDS[todayDate].toLowerCase();
     })();
 
     if (userGuess === dailyWord) {
-      return new Response(process.env.GUESS_SUCCESS_STRING!, { status: 200 });
+      const correctGuessResponse: GuessResponse = {
+        variant: 'win',
+        shouldToast: true,
+        numGuesses: messages.filter((m) => m.role === 'user').length,
+        message: 'Congrats! You have guessed the word correctly!',
+      };
+
+      return new Response(JSON.stringify(correctGuessResponse), {
+        status: 200,
+      });
     }
 
-    console.log('Daily word is', dailyWord, messages);
+    // check if user used all 6 guesses
+    if (messages.filter((m) => m.role === 'user').length >= 6) {
+      const loseResponse: GuessResponse = {
+        variant: 'lose',
+        shouldToast: true,
+        message: `You ran out of guesses! The word was "${dailyWord}"`,
+        wordToGuess: dailyWord,
+      };
+
+      return new Response(JSON.stringify(loseResponse), { status: 200 });
+    }
 
     const systemMessages: ChatCompletionMessageParam[] = [
       {
@@ -81,11 +102,22 @@ export async function POST(req: Request) {
       },
     ];
 
+    // add system message and replace last user message with user guess message
+    const parsedMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
+      [
+        ...systemMessages,
+        ...messages.slice(0, messages.length - 1),
+        {
+          role: 'user',
+          content: userGuessMessage,
+        },
+      ];
+
     // Ask OpenAI for a streaming chat completion given the prompt
     const response = await openai.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       stream: true,
-      messages: [...systemMessages, ...messages],
+      messages: parsedMessages,
     });
 
     // Convert the response into a friendly text-stream

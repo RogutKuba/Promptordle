@@ -1,32 +1,27 @@
-import { Button } from './ui/button';
-import { BadgeHelpIcon, BarChart, CircleHelp } from 'lucide-react';
-import { QuestionMarkIcon } from '@radix-ui/react-icons';
+'use client';
 import { Separator } from './ui/separator';
+import { StatDialog } from './StatDialog';
+import { useState } from 'react';
+import { InfoDialog } from './InfoDialog';
 
 export const Hero = () => {
+  const [infoOpen, setInfoOpen] = useState<boolean>(false);
+  const [statOpen, setStatOpen] = useState<boolean>(false);
+
   return (
     <div className='flex flex-col items-center justify-center'>
-      <div className='w-full flex justify-between items-end'>
+      <div className='w-[35rem] flex justify-between items-end'>
         <h1 className='scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl'>
           Promptdle
         </h1>
 
         <div className='flex gap-2 items-end'>
-          <Button variant='outline' size='icon'>
-            <QuestionMarkIcon className='h-4 w-4' />
-          </Button>
-          <Button variant='outline' size='icon'>
-            <BarChart className='h-4 w-4' />
-          </Button>
+          <InfoDialog open={infoOpen} onOpenChange={setInfoOpen} />
+          <StatDialog open={statOpen} onOpenChange={setStatOpen} />
         </div>
       </div>
 
       <Separator className='my-4' />
-
-      {/* <p className='px-8'>
-        This is a simple chat interface to interact with an AI. You can type
-        anything and the AI will respond.
-      </p> */}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-export const VALID_WORDS = [
+const _VALID_WORDS = [
   'aback',
   'abase',
   'abate',
@@ -2499,3 +2499,5 @@ export const VALID_WORDS = [
   'yummy',
   'zones',
 ];
+
+export const VALID_WORDS = new Set(_VALID_WORDS);
