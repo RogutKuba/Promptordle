@@ -38,7 +38,7 @@ export function useLocalStorage<T>(
     refetchFromLocal();
     // First load is done
     setFirstLoadDone(true);
-  }, [initialValue, key]);
+  }, [initialValue, key, refetchFromLocal]);
 
   // Instead of replacing the setState function, react to changes.
   // Whenever the state value changes, save it in the local storage.

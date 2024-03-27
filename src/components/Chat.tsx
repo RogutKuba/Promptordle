@@ -70,7 +70,7 @@ export const Chat = () => {
     if (messages.length > 0 || currentDate !== storedGame.currentDate) {
       storeGameState(messages, guessRes?.variant === 'win');
     }
-  }, [messages, guessRes]);
+  }, [messages, guessRes, storeGameState, storedGame.currentDate]);
 
   const pastGuesses = useMemo(() => {
     return messages

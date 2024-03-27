@@ -41,22 +41,6 @@ export const GuessInput = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (loadedRef.current) {
-      return;
-    }
-
-    loadedRef.current = true;
-    inputRef.current?.addEventListener('keyup', (e) =>
-      handleKeyUp(e.key, guessRef.current)
-    );
-    return () => {
-      inputRef.current?.removeEventListener('keyup', (e) =>
-        handleKeyUp(e.key, guessRef.current)
-      );
-    };
-  }, []);
-
   const handleKeyUp = (key: string, guess: string) => {
     const wordIsComplete = guess.length === 5;
     const enterKeyPressed = key === 'Enter';
@@ -71,6 +55,22 @@ export const GuessInput = ({
       }
     }
   };
+
+  useEffect(() => {
+    if (loadedRef.current) {
+      return;
+    }
+
+    loadedRef.current = true;
+    inputRef.current?.addEventListener('keyup', (e) =>
+      handleKeyUp(e.key, guessRef.current)
+    );
+    return () => {
+      inputRef.current?.removeEventListener('keyup', (e) =>
+        handleKeyUp(e.key, guessRef.current)
+      );
+    };
+  }, [handleKeyUp]);
 
   return (
     <div className='flex flex-col items-center gap-1'>
