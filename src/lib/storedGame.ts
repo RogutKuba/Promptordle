@@ -15,16 +15,18 @@ export const useStoredGame = () => {
   const storedGame = useRef<GameState>({
     messages: [],
     hasWon: false,
-    currentDate: dayjs().format('YYYY-MM-DD'),
+    currentDate: '2020-01-01',
   });
 
   useEffect(() => {
     const rawStoredValue = localStorage.getItem(GAME_KEY);
     if (rawStoredValue) {
-      storedGame.current = JSON.parse(rawStoredValue) as GameState;
+      const parsed = JSON.parse(rawStoredValue) as GameState;
+      if (parsed.currentDate === dayjs().format('YYYY-MM-DD')) {
+        console.log('loading from parsed', parsed);
+        storedGame.current = parsed;
+      }
     }
-    // console.log('storedValue', storedValue);
-    // read from local storage
   }, []);
 
   const storeGameState = (messages: Message[], hasWon: boolean) => {

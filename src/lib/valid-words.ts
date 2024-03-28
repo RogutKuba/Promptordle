@@ -1,8 +1,5 @@
 const _VALID_WORDS = [
-  'aback',
-  'abase',
   'abate',
-  'abaya',
   'abbey',
   'abbot',
   'abets',

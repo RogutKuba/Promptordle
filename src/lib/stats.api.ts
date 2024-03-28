@@ -38,7 +38,6 @@ const DEFAULT_STATS: UserStats = {
 export const useStats = () => {
   const { storedValue, setStoredValue, fetchFromLocal } =
     useLocalStorage<UserStats>(USER_STATS_STORAGE_KEY, DEFAULT_STATS);
-  const stats = useRef(storedValue);
 
   const addPlayed = (data: {
     isWin: boolean;
@@ -72,15 +71,6 @@ export const useStats = () => {
       longest_streak: longestStreak,
       distribution,
     });
-
-    stats.current = {
-      played,
-      wins,
-      'win_%': winPercentage,
-      current_streak: currentStreak,
-      longest_streak: longestStreak,
-      distribution,
-    };
   };
 
   return {

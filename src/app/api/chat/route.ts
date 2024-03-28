@@ -57,10 +57,9 @@ export async function POST(req: Request) {
 
     const dailyWord = await (async () => {
       try {
+        // get the current day index (utc based)
         const currentDayIndex =
-          STARTING_DAY.diff(dayjs(), 'days') % TOTAL_WORD_COUNT;
-
-        console.log('currentDayIndex', currentDayIndex);
+          dayjs().diff(STARTING_DAY, 'days') % TOTAL_WORD_COUNT;
 
         const sqlResult = await db.execute(
           `SELECT * FROM words WHERE id = ${currentDayIndex}`

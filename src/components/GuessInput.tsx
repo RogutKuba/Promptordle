@@ -131,31 +131,29 @@ export const GuessInput = ({
         />
       ) : null}
 
-      {new Array(remainingGuesses + (isWinner ? 1 : 0))
-        .fill('')
-        .map((_, index) => (
-          <InputOTP
-            key={index}
-            value=''
-            maxLength={5}
-            pattern={REGEXP_ONLY_CHARS}
-            render={({ slots }) => (
-              <>
-                <InputOTPGroup className='gap-1'>
-                  {slots.map((slot, index) => (
-                    <InputOTPSlot
-                      className='font-semibold text-3xl h-16 w-16 bg-gray-300 text-white'
-                      key={index}
-                      {...slot}
-                      isActive={false}
-                      hasFakeCaret={false}
-                    />
-                  ))}
-                </InputOTPGroup>
-              </>
-            )}
-          />
-        ))}
+      {new Array(remainingGuesses).fill('').map((_, index) => (
+        <InputOTP
+          key={index}
+          value=''
+          maxLength={5}
+          pattern={REGEXP_ONLY_CHARS}
+          render={({ slots }) => (
+            <>
+              <InputOTPGroup className='gap-1'>
+                {slots.map((slot, index) => (
+                  <InputOTPSlot
+                    className='font-semibold text-3xl h-16 w-16 bg-gray-300 text-white'
+                    key={index}
+                    {...slot}
+                    isActive={false}
+                    hasFakeCaret={false}
+                  />
+                ))}
+              </InputOTPGroup>
+            </>
+          )}
+        />
+      ))}
     </div>
   );
 };

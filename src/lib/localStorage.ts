@@ -7,7 +7,7 @@ export function useLocalStorage<T>(
   storedValue: T;
   setStoredValue: Dispatch<SetStateAction<T>>;
   fetchFromLocal: () => T;
-  refetchFromLocal: () => void;
+  // refetchFromLocal: () => void;
 } {
   const [storedValue, setStoredValue] = useState(initialValue);
   // We will use this flag to trigger the reading from localStorage
@@ -26,22 +26,22 @@ export function useLocalStorage<T>(
     }
   };
 
-  const refetchFromLocal = () => {
-    setStoredValue(fetchFromLocal());
-  };
-
   // Use an effect hook in order to prevent SSR inconsistencies and errors.
   // This will update the state with the value from the local storage after
   // the first initial value is applied.
   useEffect(() => {
+    if (firstLoadDone) {
+      return;
+    }
+
     // Set the value from localStorage
-    refetchFromLocal();
+    setStoredValue(fetchFromLocal());
     // First load is done
     setFirstLoadDone(true);
-  }, [initialValue, key, refetchFromLocal]);
+  }, [initialValue, key, fetchFromLocal]);
 
-  // Instead of replacing the setState function, react to changes.
-  // Whenever the state value changes, save it in the local storage.
+  // // Instead of replacing the setState function, react to changes.
+  // // Whenever the state value changes, save it in the local storage.
   useEffect(() => {
     // If it's the first load, don't store the value.
     // Otherwise, the initial value will overwrite the local storage.
@@ -59,5 +59,5 @@ export function useLocalStorage<T>(
   }, [storedValue, firstLoadDone, key]);
 
   // Return the original useState functions
-  return { storedValue, setStoredValue, fetchFromLocal, refetchFromLocal };
+  return { storedValue, setStoredValue, fetchFromLocal };
 }
