@@ -12,7 +12,7 @@ export const Hero = () => {
     <div className='flex flex-col items-center justify-center'>
       <div className='w-[35rem] flex justify-between items-end'>
         <h1 className='scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl'>
-          Promptdle
+          Promptordle
         </h1>
 
         <div className='flex gap-2 items-end'>
