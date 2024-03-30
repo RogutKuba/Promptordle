@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Promptordle',
-  description: 'A word guessing game with a twist.',
+  description: 'A word guessing game with an AI twist!',
 };
 
 export default function Home() {
