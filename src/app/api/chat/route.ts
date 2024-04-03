@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { GuessResponse } from '@/lib/guess.types';
 import { db } from '@/lib/db';
+import { ipAddress as _ipAddress } from '@vercel/edge';
+import { v4 as uuidv4 } from 'uuid';
 
 const STARTING_DAY = dayjs('2024-01-01');
 const TOTAL_WORD_COUNT = 1770;
@@ -24,6 +26,15 @@ const PROMPTDLE_FALLBACK_WORD = 'shade';
 
 export async function POST(req: Request) {
   try {
+    const ipAddress = _ipAddress(req);
+    const logId = uuidv4();
+
+    await db.execute(
+      `INSERT INTO logs (id, ip) VALUES ('${logId}', '${
+        ipAddress ?? 'unknown'
+      }')`
+    );
+
     const { messages } = (await req.json()) as {
       messages: ChatCompletionMessageParam[];
     };
