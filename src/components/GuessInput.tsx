@@ -117,6 +117,7 @@ export const GuessInput = ({
                   <InputOTPSlot
                     {...slot}
                     key={index}
+                    inputMode='text'
                     className={`font-semibold text-3xl h-16 w-16 ${
                       isValid
                         ? 'text-black'
