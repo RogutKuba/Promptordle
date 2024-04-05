@@ -84,6 +84,7 @@ export const GuessInput = ({
             <InputOTPGroup className='gap-1'>
               {slots.map((slot, index) => (
                 <InputOTPSlot
+                  inputMode='text'
                   className={`font-semibold text-3xl h-16 w-16 bg-gray-600 text-white transition-colors
                     ${
                       isWinner && guessIndex === pastGuesses.length - 1
@@ -143,6 +144,7 @@ export const GuessInput = ({
               <InputOTPGroup className='gap-1'>
                 {slots.map((slot, index) => (
                   <InputOTPSlot
+                    inputMode='text'
                     className='font-semibold text-3xl h-16 w-16 bg-gray-300 text-white'
                     key={index}
                     {...slot}
