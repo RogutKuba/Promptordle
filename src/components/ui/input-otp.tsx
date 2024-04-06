@@ -12,6 +12,7 @@ const InputOTP = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <OTPInput
     ref={ref}
+    inputMode='text'
     containerClassName={cn('flex items-center gap-2', className)}
     {...props}
   />
