@@ -35,7 +35,19 @@ export const InfoDialog = ({ open, onOpenChange }: Props) => {
           </ul>
         </div>
         <DialogFooter>
-          <div className='w-full flex justify-center'>
+          <a
+            href='https://www.producthunt.com/posts/promptordle?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-promptordle'
+            target='_blank'
+          >
+            <img
+              src='https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=449160&theme=light'
+              alt='Promptordle - Wordle&#0032;with&#0032;an&#0032;AI&#0032;twist | Product Hunt'
+              // style='width: 250px; height: 54px;'
+              width='250'
+              height='54'
+            />
+          </a>
+          <div className='w-full flex justify-center items-center'>
             <a href='https://twitter.com/rogutkuba' target='_blank'>
               <div className='text-sm text-muted-foreground'>
                 Created by @rogutkuba
