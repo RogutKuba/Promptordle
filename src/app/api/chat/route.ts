@@ -1,28 +1,31 @@
-import OpenAI from 'openai';
-import { OpenAIStream, StreamingTextResponse } from 'ai';
-import dayjs from 'dayjs';
-import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { GuessResponse } from '@/lib/guess.types';
-import { db } from '@/lib/db';
-import { ipAddress as _ipAddress } from '@vercel/edge';
-import { v4 as uuidv4 } from 'uuid';
+import OpenAI from "openai";
+import { OpenAIStream, StreamingTextResponse } from "ai";
+import dayjs from "dayjs";
+import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+import { GuessResponse } from "@/lib/guess.types";
+import { db } from "@/lib/db";
+import { ipAddress as _ipAddress } from "@vercel/edge";
+import { v4 as uuidv4 } from "uuid";
 
-const STARTING_DAY = dayjs('2024-01-01');
+const STARTING_DAY = dayjs("2024-01-01");
 const TOTAL_WORD_COUNT = 1770;
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('Missing OPENAI_API_KEY');
+const OPENROUTER_MODEL = "meta-llama/llama-3.1-8b-instruct:free";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+if (!OPENROUTER_API_KEY) {
+  throw new Error("OPENROUTER_API_KEY is not set");
 }
 
 // Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: OPENROUTER_API_KEY,
 });
 
 // Set the runtime to edge for best performance
-export const runtime = 'edge';
+export const runtime = "edge";
 
-const PROMPTDLE_FALLBACK_WORD = 'shade';
+const PROMPTDLE_FALLBACK_WORD = "shade";
 
 export async function POST(req: Request) {
   try {
@@ -31,7 +34,7 @@ export async function POST(req: Request) {
 
     await db.execute(
       `INSERT INTO logs (id, ip) VALUES ('${logId}', '${
-        ipAddress ?? 'unknown'
+        ipAddress ?? "unknown"
       }')`
     );
 
@@ -40,21 +43,21 @@ export async function POST(req: Request) {
     };
 
     const { userGuess, userGuessMessage } = (() => {
-      const userMessages = messages.filter((m: any) => m.role === 'user');
+      const userMessages = messages.filter((m: any) => m.role === "user");
       if (userMessages.length === 0) {
-        throw new Error('No user messages found');
+        throw new Error("No user messages found");
       }
 
       const lastMessage = userMessages[userMessages.length - 1];
 
-      if (lastMessage.role !== 'user') {
-        throw new Error('Last message is not user');
+      if (lastMessage.role !== "user") {
+        throw new Error("Last message is not user");
       }
       const rawWord = lastMessage.content as string;
 
-      if (!rawWord || rawWord.split(' ').length > 1 || rawWord.length !== 5) {
+      if (!rawWord || rawWord.split(" ").length > 1 || rawWord.length !== 5) {
         throw new Error(
-          'Invalid guess! Guess should be in format of one word with 5 letters'
+          "Invalid guess! Guess should be in format of one word with 5 letters"
         );
       }
 
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
       try {
         // get the current day index (utc based)
         const currentDayIndex =
-          dayjs().diff(STARTING_DAY, 'days') % TOTAL_WORD_COUNT;
+          dayjs().diff(STARTING_DAY, "days") % TOTAL_WORD_COUNT;
 
         const sqlResult = await db.execute(
           `SELECT * FROM words WHERE id = ${currentDayIndex}`
@@ -89,10 +92,10 @@ export async function POST(req: Request) {
 
     if (userGuess === dailyWord) {
       const correctGuessResponse: GuessResponse = {
-        variant: 'win',
+        variant: "win",
         shouldToast: true,
-        numGuesses: messages.filter((m) => m.role === 'user').length,
-        message: 'Congrats! You have guessed the word correctly!',
+        numGuesses: messages.filter((m) => m.role === "user").length,
+        message: "Congrats! You have guessed the word correctly!",
       };
 
       return new Response(JSON.stringify(correctGuessResponse), {
@@ -101,9 +104,9 @@ export async function POST(req: Request) {
     }
 
     // check if user used all 6 guesses
-    if (messages.filter((m) => m.role === 'user').length >= 6) {
+    if (messages.filter((m) => m.role === "user").length >= 6) {
       const loseResponse: GuessResponse = {
-        variant: 'lose',
+        variant: "lose",
         shouldToast: true,
         message: `You ran out of guesses! The word was "${dailyWord}"`,
         wordToGuess: dailyWord,
@@ -114,7 +117,7 @@ export async function POST(req: Request) {
 
     const systemMessages: ChatCompletionMessageParam[] = [
       {
-        role: 'system',
+        role: "system",
         content: `You are an all-knowing oracle that is guarding the secret 5-letter word that is "${dailyWord}". 
         You give extremely difficult riddles that are about this word, but never explicitly mention the word. 
         There are 5 rounds of riddles each getting easier as the rounds progress. All the riddles are for the same secret word. 
@@ -130,14 +133,14 @@ export async function POST(req: Request) {
         ...systemMessages,
         ...messages.slice(0, messages.length - 1),
         {
-          role: 'user',
+          role: "user",
           content: userGuessMessage,
         },
       ];
 
     // Ask OpenAI for a streaming chat completion given the prompt
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: OPENROUTER_MODEL,
       stream: true,
       messages: parsedMessages,
     });
@@ -148,6 +151,6 @@ export async function POST(req: Request) {
     // Respond with the stream
     return new StreamingTextResponse(stream);
   } catch (error: any) {
-    return new Response(error?.message ?? 'Error', { status: 500 });
+    return new Response(error?.message ?? "Error", { status: 500 });
   }
 }

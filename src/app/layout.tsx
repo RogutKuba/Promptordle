@@ -1,11 +1,11 @@
-import '../lib/wydr';
+import "../lib/wydr";
 
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { Toaster } from '@/components/ui/sonner';
-import Script from 'next/script';
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
+import Script from "next/script";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -13,17 +13,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang="en">
       <Script
-        src='https://beamanalytics.b-cdn.net/beam.min.js'
-        data-token='675cad43-f0ad-4eac-918d-e29733cbbe32'
-        async
+        defer
+        src="https://umami-production-7615.up.railway.app/script.js"
+        data-website-id="424bab8e-a504-4159-bd1d-ea4c9f75f3ca"
       />
       <body className={inter.className}>
-        <div className='flex flex-col w-full max-w-md mx-auto stretch py-8'>
+        <div className="flex flex-col w-full max-w-md mx-auto stretch py-8">
           {children}
         </div>
-        <Toaster theme='light' toastOptions={{ duration: 2500 }} />
+        <Toaster theme="light" toastOptions={{ duration: 2500 }} />
       </body>
     </html>
   );
