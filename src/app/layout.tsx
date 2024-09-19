@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import Script from "next/script";
+import { Footer } from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <div className="flex flex-col w-full max-w-md mx-auto stretch py-8">
           {children}
         </div>
+        <Footer />
         <Toaster theme="light" toastOptions={{ duration: 2500 }} />
       </body>
     </html>
