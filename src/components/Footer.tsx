@@ -7,7 +7,10 @@ export const Footer = () => {
         </div>
         <span>Check out my other projects:</span>
 
-        <a href="https://sfxengine.com" className="text-blue-400 underline">
+        <a
+          href="https://sfxengine.com?ref=promptordle"
+          className="text-blue-400 underline"
+        >
           SFX Engine
         </a>
       </div>
